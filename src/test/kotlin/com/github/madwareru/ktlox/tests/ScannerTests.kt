@@ -8,6 +8,11 @@ import kotlin.test.assertEquals
 class ScannerTests {
     @Test
     fun testScannerCases() {
+        fun scanString(source: String) = Scanner(source)
+            .scannedTokensIgnoringCommentsAndWhitespaces
+            .map { it.type.print() }
+            .toTypedArray()
+
         for(case in TestCases.database) {
             val (source, expectation) = case
             val scanned = scanString(source)
@@ -20,11 +25,6 @@ class ScannerTests {
         }
     }
 }
-
-fun scanString(source: String) = Scanner(source)
-    .scannedTokensIgnoringCommentsAndWhitespaces
-    .map { it.type.print() }
-    .toTypedArray()
 
 object TestCases {
     val database = arrayOf(
