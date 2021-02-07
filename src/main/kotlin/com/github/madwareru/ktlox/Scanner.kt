@@ -6,7 +6,9 @@ class Scanner(private val source: String) {
     private var currentLineStart = 0
     private var offset = 0
     private var start = 0
-    private var currentCharacter: Char? = null
+    private var currentCharacter: Char = '\u0000'
+    private var multilineCommentNesting = 0
+    private lateinit var currentStartPosition: CharacterPosition
 
     val scannedTokens by lazy {
         scanTokensInternal();
@@ -17,24 +19,27 @@ class Scanner(private val source: String) {
         scannedTokens.filter {
             it.type !is TokenType.WhiteSpace &&
             it.type !is TokenType.NewLine &&
-            it.type !is TokenType.Comment
+            it.type !is TokenType.SingleLineComment
         }
     }
 
     private fun scanTokensInternal() {
+        multilineCommentNesting = 0
         currentLine = 0
         currentLineStart = 0
         offset = 0
         tokens.clear()
         while (!isAtEnd()) {
             start = offset
+            currentStartPosition = CharacterPosition(currentLine, offset - currentLineStart)
             scanNextToken()
         }
+        val startPosition = CharacterPosition(currentLine, offset - currentLineStart)
+        val endPosition = CharacterPosition(currentLine, offset - currentLineStart)
         tokens.add(
             Token(
-                currentLine,
-                offset - currentLineStart,
-                offset - currentLineStart,
+                startPosition,
+                endPosition,
                 offset,
                 offset,
                 TokenType.Eof
@@ -44,16 +49,17 @@ class Scanner(private val source: String) {
 
     private fun scanNextToken() {
         advance()
+        currentStartPosition = CharacterPosition(0, 0)
         currentCharacter?.let { c ->
             val token = when(val singleCharacterToken = c.matchSingleCharacterToken()) {
                 null -> scanDeepToken(c)
                 else -> singleCharacterToken
             }
+            val endPosition = CharacterPosition(currentLine, offset - currentLineStart)
             tokens.add(
                 Token(
-                    currentLine,
-                    start - currentLineStart,
-                    offset - currentLineStart,
+                    currentStartPosition,
+                    endPosition,
                     start,
                     offset,
                     token
@@ -83,10 +89,6 @@ class Scanner(private val source: String) {
                 TokenType.BooleanOperator.Equal,
                 TokenType.AssignmentOperator
             )
-            '#' -> {
-                while (!isAtEnd() && lookAhead() != '\n') { advance() }
-                TokenType.Comment
-            }
             in whiteSpaceChars -> {
                 while (!isAtEnd() && lookAhead() in whiteSpaceChars) { advance() }
                 TokenType.WhiteSpace
@@ -98,8 +100,53 @@ class Scanner(private val source: String) {
             '"' -> scanStringToken()
             in digits -> scanNumberToken()
             in upperCaseLetters, in lowerCaseLetters -> scanIdentifier()
+            '/' -> {
+                when (lookAhead()) {
+                    '/' -> {
+                        advanceUntilTheEndOfLine();
+                        TokenType.SingleLineComment
+                    }
+                    '*' -> {
+                        multilineCommentNesting++
+                        advance()
+                        advance()
+                        advanceUntilTheEndOfMultilineComment()
+                        TokenType.SingleLineComment
+                    }
+                    else -> TokenType.ArithmeticOperator.Division
+                }
+            }
             else -> TokenType.Error.BadCharacter
         }
+    }
+
+    private fun advanceUntilTheEndOfMultilineComment() {
+        while(!isAtEnd() && multilineCommentNesting > 0 ) {
+            when {
+                currentCharacter == '/' && lookAhead() == '*' -> {
+                    advance()
+                    advance()
+                    multilineCommentNesting++
+                }
+                currentCharacter == '*' && lookAhead() == '/' -> {
+                    advance()
+                    multilineCommentNesting--
+                    if (multilineCommentNesting > 0) {
+                        // In the case when we need to continue nested comment counting we need to
+                        // step through next character immediately. But in the case when comment braces
+                        // are balanced already we should not do it, because tokenizer will call advance()
+                        // itself before scanning next token
+                        advance()
+                    }
+                }
+                currentCharacter == '\n' -> advanceLine()
+                else -> advance()
+            }
+        }
+    }
+
+    private fun advanceUntilTheEndOfLine() {
+        while (!isAtEnd() && lookAhead() != '\n') { advance() }
     }
 
     private fun scanIdentifier(): TokenType {
@@ -160,7 +207,7 @@ class Scanner(private val source: String) {
 
     private fun advance() {
         if(isAtEnd()) {
-            currentCharacter = null
+            currentCharacter = '\u0000'
         } else {
             currentCharacter = source[offset]
             offset++
@@ -174,7 +221,7 @@ class Scanner(private val source: String) {
     }
 
     private fun lookAhead() = if (isAtEnd()) '\u0000' else source[offset]
-    private fun lookAhead2() = if (offset+1 < source.length) source[offset+1] else '\u0000'
+    private fun lookAhead2() = if (offset + 1 < source.length) source[offset + 1] else '\u0000'
 
     private fun isAtEnd() = offset >= source.length
 

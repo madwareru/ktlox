@@ -1,9 +1,10 @@
 package com.github.madwareru.ktlox
 
+data class CharacterPosition(val row: Int, val col: Int)
+
 data class Token(
-    val line: Int,
-    val startColumn: Int,
-    val endColumn: Int,
+    val startPosition: CharacterPosition,
+    val endPosition: CharacterPosition,
     val startOffset: Int,
     val endOffset: Int,
     val type: TokenType
@@ -63,7 +64,8 @@ sealed class TokenType {
         object Dot : Delimiter()
         object Semicolon : Delimiter()
     }
-    object Comment: TokenType()
+    object SingleLineComment: TokenType()
+    object MultiLineComment: TokenType()
     object NewLine: TokenType()
     object WhiteSpace: TokenType()
     object Eof : TokenType()
@@ -72,7 +74,7 @@ sealed class TokenType {
 fun Char.matchSingleCharacterToken() : TokenType? =
     when(this) {
         '(', ')', '{', '}' -> matchBraceToken()
-        '-', '+', '/', '*' -> matchArithmeticOperatorToken()
+        '-', '+', '*' -> matchArithmeticOperatorToken()
         ',', '.', ';' -> matchDelimiterToken()
         else -> null
     }
@@ -96,9 +98,11 @@ private fun Char.matchBraceToken(): TokenType.Brace? =
 
 private fun Char.matchArithmeticOperatorToken(): TokenType.ArithmeticOperator? =
     when(this) {
+        // Division is not represented here since '/' could be a part of "//"
+        // marking the beginning of a single line comment or even part of "/*"
+        // marking the beginning of a multiline comment
         '+' -> TokenType.ArithmeticOperator.Plus
         '-' -> TokenType.ArithmeticOperator.Minus
-        '/' -> TokenType.ArithmeticOperator.Division
         '*' -> TokenType.ArithmeticOperator.Multiplication
         else -> null
     }
@@ -107,7 +111,6 @@ fun TokenType.print() : String = when(this) {
     TokenType.Identifier -> "IDENTIFIER"
     TokenType.Error.BadCharacter -> "ERROR:BAD_CHAR"
     TokenType.Error.UnterminatedString -> "ERROR:UNTERMINATED_STRING"
-    TokenType.Comment -> "COMMENT"
     TokenType.NewLine -> "NEWLINE"
     TokenType.WhiteSpace -> "WHITESPACE"
     TokenType.Literal.String -> "STRING_LITERAL"
@@ -147,4 +150,6 @@ fun TokenType.print() : String = when(this) {
     TokenType.Delimiter.Dot -> "DOT"
     TokenType.Delimiter.Semicolon -> "SEMICOLON"
     TokenType.Eof -> "EOF"
+    TokenType.MultiLineComment -> "MULTI_LINE_COMMENT"
+    TokenType.SingleLineComment -> "SINGLE_LINE_COMMENT"
 }
