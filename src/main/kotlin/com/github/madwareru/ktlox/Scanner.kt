@@ -157,6 +157,7 @@ class Scanner(private val source: String) {
         return when {
             currentIdentifierMatches("false") -> TokenType.Literal.Boolean
             currentIdentifierMatches("true") -> TokenType.Literal.Boolean
+            currentIdentifierMatches("nil") -> TokenType.Literal.Nil
             currentIdentifierMatches("or") -> TokenType.Keyword.Or
             currentIdentifierMatches("and") -> TokenType.Keyword.And
             currentIdentifierMatches("class") -> TokenType.Keyword.Class
@@ -164,7 +165,6 @@ class Scanner(private val source: String) {
             currentIdentifierMatches("fun") -> TokenType.Keyword.Fun
             currentIdentifierMatches("for") -> TokenType.Keyword.For
             currentIdentifierMatches("if") -> TokenType.Keyword.If
-            currentIdentifierMatches("nil") -> TokenType.Keyword.Nil
             currentIdentifierMatches("print") -> TokenType.Keyword.Print
             currentIdentifierMatches("return") -> TokenType.Keyword.Return
             currentIdentifierMatches("super") -> TokenType.Keyword.Super

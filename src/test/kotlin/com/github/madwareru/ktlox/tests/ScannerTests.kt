@@ -1,6 +1,7 @@
 package com.github.madwareru.ktlox.tests
 
 import com.github.madwareru.ktlox.Scanner
+import com.github.madwareru.ktlox.TokenType
 import com.github.madwareru.ktlox.print
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -10,7 +11,7 @@ class ScannerTests {
     fun testScannerCases() {
         fun scanString(source: String) = Scanner(source)
             .scannedTokensIgnoringCommentsAndWhitespaces
-            .map { it.type.print() }
+            .map { it.type }
             .toTypedArray()
 
         for(case in TestCases.database) {
@@ -29,20 +30,20 @@ class ScannerTests {
 object TestCases {
     val database = arrayOf(
         "2+2" to arrayOf(
-            "NUMBER_LITERAL",
-            "PLUS_OPERATOR",
-            "NUMBER_LITERAL",
-            "EOF"
+            TokenType.Literal.Number,
+            TokenType.ArithmeticOperator.Plus,
+            TokenType.Literal.Number,
+            TokenType.Eof
         ),
         "(2+2)/*+2+2+2*/+2" to arrayOf(
-            "BRACE_L_PAREN",
-            "NUMBER_LITERAL",
-            "PLUS_OPERATOR",
-            "NUMBER_LITERAL",
-            "BRACE_R_PAREN",
-            "PLUS_OPERATOR",
-            "NUMBER_LITERAL",
-            "EOF"
+            TokenType.Brace.LParen,
+            TokenType.Literal.Number,
+            TokenType.ArithmeticOperator.Plus,
+            TokenType.Literal.Number,
+            TokenType.Brace.RParen,
+            TokenType.ArithmeticOperator.Plus,
+            TokenType.Literal.Number,
+            TokenType.Eof
         )
     )
 }

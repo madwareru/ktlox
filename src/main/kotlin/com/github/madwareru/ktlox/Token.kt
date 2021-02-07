@@ -20,6 +20,7 @@ sealed class TokenType {
         object String : Literal()
         object Boolean : Literal()
         object Number : Literal()
+        object Nil : Literal()
     }
     sealed class Keyword : TokenType() {
         object And : Keyword()
@@ -28,7 +29,6 @@ sealed class TokenType {
         object Fun : Keyword()
         object For : Keyword()
         object If : Keyword()
-        object Nil : Keyword()
         object Or : Keyword()
         object Print : Keyword()
         object Return : Keyword()
@@ -116,13 +116,13 @@ fun TokenType.print() : String = when(this) {
     TokenType.Literal.String -> "STRING_LITERAL"
     TokenType.Literal.Boolean -> "BOOLEAN_LITERAL"
     TokenType.Literal.Number -> "NUMBER_LITERAL"
+    TokenType.Literal.Nil -> "NIL_LITERAL"
     TokenType.Keyword.And -> "KW_AND"
     TokenType.Keyword.Class -> "KW_CLASS"
     TokenType.Keyword.Else -> "KW_ELSE"
     TokenType.Keyword.Fun -> "KW_FUN"
     TokenType.Keyword.For -> "KW_FOR"
     TokenType.Keyword.If -> "KW_IF"
-    TokenType.Keyword.Nil -> "KW_NIL"
     TokenType.Keyword.Or -> "KW_OR"
     TokenType.Keyword.Print -> "KW_PRINT"
     TokenType.Keyword.Return -> "KW_RETURN"
