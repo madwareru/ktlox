@@ -52,8 +52,8 @@ class Scanner(private val source: String) {
 
     private fun scanNextToken() {
         advance()
-        currentStartPosition = CharacterPosition(0, 0)
-        currentCharacter?.let { c ->
+        currentStartPosition = CharacterPosition(currentLine, offset - currentLineStart)
+        currentCharacter.let { c ->
             val tokenType = when(val singleCharacterToken = c.matchSingleCharacterToken()) {
                 null -> scanDeepToken(c)
                 else -> singleCharacterToken
@@ -107,7 +107,7 @@ class Scanner(private val source: String) {
             '/' -> {
                 when (lookAhead()) {
                     '/' -> {
-                        advanceUntilTheEndOfLine();
+                        advanceUntilTheEndOfLine()
                         TokenType.SingleLineComment
                     }
                     '*' -> {
@@ -228,8 +228,6 @@ class Scanner(private val source: String) {
     private fun lookAhead2() = if (offset + 1 < source.length) source[offset + 1] else '\u0000'
 
     private fun isAtEnd() = offset >= source.length
-
-    fun getLexeme(token: Token): String = source.subSequence(token.startOffset, token.endOffset).toString()
 
     companion object {
         val whiteSpaceChars = arrayOf('\r', ' ', '\t')
