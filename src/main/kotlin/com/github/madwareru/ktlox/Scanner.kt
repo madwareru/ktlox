@@ -9,6 +9,7 @@ class Scanner(private val source: String) {
     private var currentCharacter: Char = '\u0000'
     private var multilineCommentNesting = 0
     private lateinit var currentStartPosition: CharacterPosition
+    private lateinit var literalStringBuilder: java.lang.StringBuilder
 
     val scannedTokens by lazy {
         scanTokensInternal();
@@ -28,6 +29,7 @@ class Scanner(private val source: String) {
         currentLine = 0
         currentLineStart = 0
         offset = 0
+        literalStringBuilder = java.lang.StringBuilder(256)
         tokens.clear()
         while (!isAtEnd()) {
             start = offset
@@ -38,6 +40,7 @@ class Scanner(private val source: String) {
         val endPosition = CharacterPosition(currentLine, offset - currentLineStart)
         tokens.add(
             Token(
+                this,
                 startPosition,
                 endPosition,
                 offset,
@@ -51,20 +54,20 @@ class Scanner(private val source: String) {
         advance()
         currentStartPosition = CharacterPosition(0, 0)
         currentCharacter?.let { c ->
-            val token = when(val singleCharacterToken = c.matchSingleCharacterToken()) {
+            val tokenType = when(val singleCharacterToken = c.matchSingleCharacterToken()) {
                 null -> scanDeepToken(c)
                 else -> singleCharacterToken
             }
             val endPosition = CharacterPosition(currentLine, offset - currentLineStart)
-            tokens.add(
-                Token(
-                    currentStartPosition,
-                    endPosition,
-                    start,
-                    offset,
-                    token
-                )
+            val token = Token(
+                this,
+                currentStartPosition,
+                endPosition,
+                start,
+                offset,
+                tokenType
             )
+            tokens.add(token)
         }
     }
 
@@ -158,8 +161,8 @@ class Scanner(private val source: String) {
             currentIdentifierMatches("false") -> TokenType.Literal.Boolean
             currentIdentifierMatches("true") -> TokenType.Literal.Boolean
             currentIdentifierMatches("nil") -> TokenType.Literal.Nil
-            currentIdentifierMatches("or") -> TokenType.Keyword.Or
-            currentIdentifierMatches("and") -> TokenType.Keyword.And
+            currentIdentifierMatches("or") -> TokenType.BooleanOperator.Or
+            currentIdentifierMatches("and") -> TokenType.BooleanOperator.And
             currentIdentifierMatches("class") -> TokenType.Keyword.Class
             currentIdentifierMatches("else") -> TokenType.Keyword.Else
             currentIdentifierMatches("fun") -> TokenType.Keyword.Fun
@@ -224,6 +227,8 @@ class Scanner(private val source: String) {
     private fun lookAhead2() = if (offset + 1 < source.length) source[offset + 1] else '\u0000'
 
     private fun isAtEnd() = offset >= source.length
+
+    fun getLexeme(token: Token): String = source.subSequence(token.startOffset, token.endOffset).toString()
 
     companion object {
         val whiteSpaceChars = arrayOf('\r', ' ', '\t')

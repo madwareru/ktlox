@@ -3,12 +3,34 @@ package com.github.madwareru.ktlox
 data class CharacterPosition(val row: Int, val col: Int)
 
 data class Token(
+    private val owningScanner: Scanner,
     val startPosition: CharacterPosition,
     val endPosition: CharacterPosition,
     val startOffset: Int,
     val endOffset: Int,
     val type: TokenType
-)
+) {
+    val lexeme: String by lazy { owningScanner.getLexeme(this) }
+    val value: TokenValue by lazy {
+        when (type) {
+            TokenType.Identifier -> TokenValue.IdentifierName(lexeme)
+            TokenType.Literal.String -> TokenValue.String(lexeme.trim('"'))
+            TokenType.Literal.Number -> TokenValue.Number(lexeme.toDouble())
+            TokenType.Literal.Boolean -> TokenValue.Boolean(lexeme.toBoolean())
+            TokenType.Literal.Nil -> TokenValue.NilLiteral
+            else -> TokenValue.None
+        }
+    }
+}
+
+sealed class TokenValue {
+    data class IdentifierName(val value: kotlin.String) : TokenValue()
+    data class String(val value: kotlin.String) : TokenValue()
+    data class Number(val value: Double) : TokenValue()
+    data class Boolean(val value: kotlin.Boolean) : TokenValue()
+    object NilLiteral : TokenValue()
+    object None : TokenValue()
+}
 
 sealed class TokenType {
     object Identifier : TokenType()
@@ -23,13 +45,11 @@ sealed class TokenType {
         object Nil : Literal()
     }
     sealed class Keyword : TokenType() {
-        object And : Keyword()
         object Class : Keyword()
         object Else : Keyword()
         object Fun : Keyword()
         object For : Keyword()
         object If : Keyword()
-        object Or : Keyword()
         object Print : Keyword()
         object Return : Keyword()
         object Super : Keyword()
@@ -58,6 +78,8 @@ sealed class TokenType {
         object Greater : BooleanOperator()
         object GreaterEqual : BooleanOperator()
         object Equal : BooleanOperator()
+        object And : BooleanOperator()
+        object Or : BooleanOperator()
     }
     sealed class Delimiter : TokenType() {
         object Comma : Delimiter()
@@ -117,13 +139,11 @@ fun TokenType.print() : String = when(this) {
     TokenType.Literal.Boolean -> "BOOLEAN_LITERAL"
     TokenType.Literal.Number -> "NUMBER_LITERAL"
     TokenType.Literal.Nil -> "NIL_LITERAL"
-    TokenType.Keyword.And -> "KW_AND"
     TokenType.Keyword.Class -> "KW_CLASS"
     TokenType.Keyword.Else -> "KW_ELSE"
     TokenType.Keyword.Fun -> "KW_FUN"
     TokenType.Keyword.For -> "KW_FOR"
     TokenType.Keyword.If -> "KW_IF"
-    TokenType.Keyword.Or -> "KW_OR"
     TokenType.Keyword.Print -> "KW_PRINT"
     TokenType.Keyword.Return -> "KW_RETURN"
     TokenType.Keyword.Super -> "KW_SUPER"
@@ -146,6 +166,8 @@ fun TokenType.print() : String = when(this) {
     TokenType.BooleanOperator.Greater -> "GT_OPERATOR"
     TokenType.BooleanOperator.GreaterEqual -> "GTEQ_OPERATOR"
     TokenType.BooleanOperator.Equal -> "EQ_OPERATOR"
+    TokenType.BooleanOperator.And -> "AND_OPERATOR"
+    TokenType.BooleanOperator.Or -> "OR_OPERATOR"
     TokenType.Delimiter.Comma -> "COMMA"
     TokenType.Delimiter.Dot -> "DOT"
     TokenType.Delimiter.Semicolon -> "SEMICOLON"
