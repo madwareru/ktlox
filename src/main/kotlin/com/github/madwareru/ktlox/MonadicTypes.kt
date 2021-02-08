@@ -31,6 +31,12 @@ fun<T, TErrorReason> Option<T>.castToErr(
         is Option.Some -> ok { this.value }
     }
 
+inline fun<T> Option<T>.unwrapOr(default: () -> T) =
+    when (this) {
+        is Option.Some -> this.value
+        else -> default()
+    }
+
 fun <T> Option<T>.unwrap() = (this as Option.Some).value
 
 sealed class Result<out T, TErrorReason> {
