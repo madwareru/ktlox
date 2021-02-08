@@ -1,9 +1,8 @@
-package com.github.madwareru.ktlox.tests
+package com.github.madwareru.ktlox.tests.scanner
 
 import com.github.madwareru.ktlox.Scanner
 import com.github.madwareru.ktlox.TokenType
 import com.github.madwareru.ktlox.TokenValue
-import com.github.madwareru.ktlox.print
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 

@@ -3,15 +3,14 @@ package com.github.madwareru.ktlox
 data class CharacterPosition(val row: Int, val col: Int)
 
 data class Token(
-    private val owningScanner: Scanner,
     val startPosition: CharacterPosition,
     val endPosition: CharacterPosition,
     val startOffset: Int,
     val endOffset: Int,
-    val type: TokenType
+    val type: TokenType,
+    val lexeme: String
 ) {
-    val lexeme: String by lazy { owningScanner.getLexeme(this) }
-    val value: TokenValue by lazy {
+    val value by lazy {
         when (type) {
             TokenType.Identifier -> TokenValue.IdentifierName(lexeme)
             TokenType.Literal.String -> TokenValue.String(lexeme.trim('"'))
@@ -22,6 +21,15 @@ data class Token(
         }
     }
 }
+
+fun dummyToken(tokenType: TokenType, lexeme: String = "") = Token(
+    CharacterPosition(0,0), CharacterPosition(0,0), 0, 0,
+    tokenType, lexeme
+)
+
+inline fun dummyNumeralToken(ctr: () -> Double) = dummyToken(
+    TokenType.Literal.Number, ctr().toString()
+)
 
 sealed class TokenValue {
     data class IdentifierName(val value: kotlin.String) : TokenValue()
@@ -154,10 +162,10 @@ fun TokenType.print() : String = when(this) {
     TokenType.Brace.RParen -> "BRACE_R_PAREN"
     TokenType.Brace.LCurly -> "BRACE_L_CURLY"
     TokenType.Brace.RCurly -> "BRACE_L_CURLY"
-    TokenType.ArithmeticOperator.Plus -> "PLUS_OPERATOR"
-    TokenType.ArithmeticOperator.Minus -> "MINUS_OPERATOR"
-    TokenType.ArithmeticOperator.Division -> "DIVISION_OPERATOR"
-    TokenType.ArithmeticOperator.Multiplication -> "MULTIPLICATION_OPERATOR"
+    TokenType.ArithmeticOperator.Plus -> "+"
+    TokenType.ArithmeticOperator.Minus -> "-"
+    TokenType.ArithmeticOperator.Division -> "/"
+    TokenType.ArithmeticOperator.Multiplication -> "*"
     TokenType.AssignmentOperator -> "ASSIGNMENT_OPERATOR"
     TokenType.BooleanOperator.Not -> "NOT_OPERATOR"
     TokenType.BooleanOperator.NotEqual -> "NEQ_OPERATOR"

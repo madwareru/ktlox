@@ -40,12 +40,12 @@ class Scanner(private val source: String) {
         val endPosition = CharacterPosition(currentLine, offset - currentLineStart)
         tokens.add(
             Token(
-                this,
                 startPosition,
                 endPosition,
                 offset,
                 offset,
-                TokenType.Eof
+                TokenType.Eof,
+                ""
             )
         )
     }
@@ -59,13 +59,14 @@ class Scanner(private val source: String) {
                 else -> singleCharacterToken
             }
             val endPosition = CharacterPosition(currentLine, offset - currentLineStart)
+            val lexeme = source.subSequence(start, offset).toString()
             val token = Token(
-                this,
                 currentStartPosition,
                 endPosition,
                 start,
                 offset,
-                tokenType
+                tokenType,
+                lexeme
             )
             tokens.add(token)
         }
