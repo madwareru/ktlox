@@ -3,13 +3,13 @@ package com.github.madwareru.ktlox
 /*
  * Grammar:
  *
- * expression -> booleanEqs
- *
- * booleanEqs -> booleanTerms (("!=" | "==") booleanTerms)*
+ * expression -> booleanTerms
  *
  * booleanTerms -> booleanFactors ("or" booleanFactors)*
  *
- * booleanFactors -> booleanComparisons ("and" booleanComparisons)*
+ * booleanFactors -> booleanEq ("and" booleanEqs)*
+ *
+ * booleanEqs -> booleanComparisons (("!=" | "==") booleanComparisons)*
  *
  * booleanComparisons -> arithmeticTerms (("<" | "<=" | ">=" | ">") arithmeticTerms)*
  *
@@ -95,14 +95,7 @@ class Parser(private val tokens: List<Token>) {
     fun parse(): Result<ASTNode, String> = expression()
 
     private fun expression(): Result<ASTNode.Expression, String> {
-        return booleanEqs()
-    }
-
-    private fun booleanEqs(): Result<ASTNode.Expression, String> {
-        return separatedSeries(
-            TokenType.BooleanOperator.Equal,
-            TokenType.BooleanOperator.NotEqual
-        ) { booleanTerms() }
+        return booleanTerms()
     }
 
     private fun booleanTerms(): Result<ASTNode.Expression, String> {
@@ -110,7 +103,14 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private fun booleanFactors(): Result<ASTNode.Expression, String> {
-        return separatedSeries(TokenType.BooleanOperator.And) { booleanComparisons() }
+        return separatedSeries(TokenType.BooleanOperator.And) { booleanEqs() }
+    }
+
+    private fun booleanEqs(): Result<ASTNode.Expression, String> {
+        return separatedSeries(
+            TokenType.BooleanOperator.Equal,
+            TokenType.BooleanOperator.NotEqual
+        ) { booleanComparisons() }
     }
 
     private fun booleanComparisons(): Result<ASTNode.Expression, String> {
