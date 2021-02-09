@@ -1,5 +1,5 @@
-import com.github.madwareru.ktlox.Scanner
-import com.github.madwareru.ktlox.print
+import com.github.madwareru.ktlox.*
+import com.github.madwareru.ktlox.visitors.ExpressionEvaluatorVisitor
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.file.Files
@@ -39,9 +39,22 @@ private fun runAsInterpreter() {
 
 private fun runTranslationUnit(translationUnit: String) {
     val scanner = Scanner(translationUnit)
-    for (token in scanner.scannedTokensIgnoringCommentsAndWhitespaces) {
-        print("${token.type.print()} ")
+    val parser = Parser(scanner.scannedTokensIgnoringCommentsAndWhitespaces)
+    when (val ast = parser.parse()) {
+        is Result.Err -> println( ast.reason )
+        is Result.Ok -> println(
+            when (val evaluated = ast.value.acceptVisitor(ExpressionEvaluatorVisitor())) {
+                is Result.Err -> evaluated.reason
+                is Result.Ok -> when (val v = evaluated.value) {
+                    is LoxValue.Boolean -> v.value.toString()
+                    is LoxValue.IdentifierName -> v.value
+                    LoxValue.NilLiteral -> "Nil"
+                    LoxValue.None -> "None"
+                    is LoxValue.Number -> v.value.toString()
+                    is LoxValue.String -> v.value
+                }
+            }
+        )
     }
-    println()
 }
 

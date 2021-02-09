@@ -1,4 +1,6 @@
-package com.github.madwareru.ktlox
+package com.github.madwareru.ktlox.ast
+
+import com.github.madwareru.ktlox.Token
 
 sealed class ASTNode {
     sealed class Expression : ASTNode() {

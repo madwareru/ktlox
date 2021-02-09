@@ -1,5 +1,7 @@
 package com.github.madwareru.ktlox
 
+import com.github.madwareru.ktlox.ast.*
+
 /*
  * Grammar:
  *

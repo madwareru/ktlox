@@ -1,6 +1,8 @@
 package com.github.madwareru.ktlox.tests.parser
 
 import com.github.madwareru.ktlox.*
+import com.github.madwareru.ktlox.visitors.ExpressionCalculatorVisitor
+import com.github.madwareru.ktlox.visitors.SExpressionPrinterVisitor
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 

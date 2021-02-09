@@ -12,12 +12,12 @@ data class Token(
 ) {
     val value by lazy {
         when (type) {
-            TokenType.Identifier -> TokenValue.IdentifierName(lexeme)
-            TokenType.Literal.String -> TokenValue.String(lexeme.trim('"'))
-            TokenType.Literal.Number -> TokenValue.Number(lexeme.toDouble())
-            TokenType.Literal.Boolean -> TokenValue.Boolean(lexeme.toBoolean())
-            TokenType.Literal.Nil -> TokenValue.NilLiteral
-            else -> TokenValue.None
+            TokenType.Identifier -> LoxValue.IdentifierName(lexeme)
+            TokenType.Literal.String -> LoxValue.String(lexeme.trim('"'))
+            TokenType.Literal.Number -> LoxValue.Number(lexeme.toDouble())
+            TokenType.Literal.Boolean -> LoxValue.Boolean(lexeme.toBoolean())
+            TokenType.Literal.Nil -> LoxValue.NilLiteral
+            else -> LoxValue.None
         }
     }
 }
@@ -31,13 +31,13 @@ inline fun dummyNumeralToken(ctr: () -> Double) = dummyToken(
     TokenType.Literal.Number, ctr().toString()
 )
 
-sealed class TokenValue {
-    data class IdentifierName(val value: kotlin.String) : TokenValue()
-    data class String(val value: kotlin.String) : TokenValue()
-    data class Number(val value: Double) : TokenValue()
-    data class Boolean(val value: kotlin.Boolean) : TokenValue()
-    object NilLiteral : TokenValue()
-    object None : TokenValue()
+sealed class LoxValue {
+    data class IdentifierName(val value: kotlin.String) : LoxValue()
+    data class String(val value: kotlin.String) : LoxValue()
+    data class Number(val value: Double) : LoxValue()
+    data class Boolean(val value: kotlin.Boolean) : LoxValue()
+    object NilLiteral : LoxValue()
+    object None : LoxValue()
 }
 
 sealed class TokenType {

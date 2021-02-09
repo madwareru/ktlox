@@ -2,7 +2,7 @@ package com.github.madwareru.ktlox.tests.scanner
 
 import com.github.madwareru.ktlox.Scanner
 import com.github.madwareru.ktlox.TokenType
-import com.github.madwareru.ktlox.TokenValue
+import com.github.madwareru.ktlox.LoxValue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -32,36 +32,36 @@ class ScannerTests {
             .scannedTokensIgnoringCommentsAndWhitespaces
 
         when (val v = tokens[0].value) {
-            is TokenValue.Number -> assertEquals(123.12, v.value)
+            is LoxValue.Number -> assertEquals(123.12, v.value)
             else -> assert(false)
         }
 
         when (val v = tokens[1].value) {
-            is TokenValue.Number -> assertEquals(10.0, v.value)
+            is LoxValue.Number -> assertEquals(10.0, v.value)
             else -> assert(false)
         }
 
         when (val v = tokens[2].value) {
-            is TokenValue.Boolean -> assertEquals(false, v.value)
+            is LoxValue.Boolean -> assertEquals(false, v.value)
             else -> assert(false)
         }
 
         when (val v = tokens[3].value) {
-            is TokenValue.Boolean -> assertEquals(true, v.value)
+            is LoxValue.Boolean -> assertEquals(true, v.value)
             else -> assert(false)
         }
 
-        assert(tokens[4].value is TokenValue.NilLiteral)
+        assert(tokens[4].value is LoxValue.NilLiteral)
 
         when (val v = tokens[5].value) {
-            is TokenValue.String -> assertEquals("string", v.value)
+            is LoxValue.String -> assertEquals("string", v.value)
             else -> assert(false)
         }
 
-        assert(tokens[6].value is TokenValue.None)
+        assert(tokens[6].value is LoxValue.None)
 
         when (val v = tokens[7].value) {
-            is TokenValue.IdentifierName -> assertEquals("fooBar", v.value)
+            is LoxValue.IdentifierName -> assertEquals("fooBar", v.value)
             else -> assert(false)
         }
     }
