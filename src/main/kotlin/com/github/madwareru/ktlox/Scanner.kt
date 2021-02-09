@@ -12,7 +12,7 @@ class Scanner(private val source: String) {
     private lateinit var literalStringBuilder: java.lang.StringBuilder
 
     val scannedTokens by lazy {
-        scanTokensInternal();
+        scanTokensInternal()
         tokens
     }
 
@@ -52,13 +52,13 @@ class Scanner(private val source: String) {
 
     private fun scanNextToken() {
         advance()
-        currentStartPosition = CharacterPosition(currentLine, offset - currentLineStart)
+        currentStartPosition = CharacterPosition(currentLine, offset - currentLineStart - 1)
         currentCharacter.let { c ->
             val tokenType = when(val singleCharacterToken = c.matchSingleCharacterToken()) {
                 null -> scanDeepToken(c)
                 else -> singleCharacterToken
             }
-            val endPosition = CharacterPosition(currentLine, offset - currentLineStart)
+            val endPosition = CharacterPosition(currentLine, offset - currentLineStart - 1)
             val lexeme = source.subSequence(start, offset).toString()
             val token = Token(
                 currentStartPosition,

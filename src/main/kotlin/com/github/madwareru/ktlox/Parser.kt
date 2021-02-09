@@ -3,13 +3,13 @@ package com.github.madwareru.ktlox
 /*
  * Grammar:
  *
- * expression -> booleanTerms
+ * expression -> booleanEqs
+ *
+ * booleanEqs -> booleanTerms (("!=" | "==") booleanTerms)*
  *
  * booleanTerms -> booleanFactors ("or" booleanFactors)*
  *
- * booleanFactors -> booleanEq ("and" booleanEqs)*
- *
- * booleanEqs -> booleanComparisons (("!=" | "==") booleanComparisons)*
+ * booleanFactors -> booleanComparisons ("and" booleanComparisons)*
  *
  * booleanComparisons -> arithmeticTerms (("<" | "<=" | ">=" | ">") arithmeticTerms)*
  *
@@ -95,7 +95,14 @@ class Parser(private val tokens: List<Token>) {
     fun parse(): Result<ASTNode, String> = expression()
 
     private fun expression(): Result<ASTNode.Expression, String> {
-        return booleanTerms()
+        return booleanEqs()
+    }
+
+    private fun booleanEqs(): Result<ASTNode.Expression, String> {
+        return separatedSeries(
+            TokenType.BooleanOperator.Equal,
+            TokenType.BooleanOperator.NotEqual
+        ) { booleanTerms() }
     }
 
     private fun booleanTerms(): Result<ASTNode.Expression, String> {
@@ -103,14 +110,7 @@ class Parser(private val tokens: List<Token>) {
     }
 
     private fun booleanFactors(): Result<ASTNode.Expression, String> {
-        return separatedSeries(TokenType.BooleanOperator.And) { booleanEqs() }
-    }
-
-    private fun booleanEqs(): Result<ASTNode.Expression, String> {
-        return separatedSeries(
-            TokenType.BooleanOperator.Equal,
-            TokenType.BooleanOperator.NotEqual
-        ) { booleanComparisons() }
+        return separatedSeries(TokenType.BooleanOperator.And) { booleanComparisons() }
     }
 
     private fun booleanComparisons(): Result<ASTNode.Expression, String> {
@@ -158,7 +158,7 @@ class Parser(private val tokens: List<Token>) {
                 TokenType.Identifier -> { advance(); ok{ literalExp { it } } }
                 TokenType.Brace.LParen -> {
                     advance()
-                    expression().flatMap {
+                    expression().flatMap { expr ->
                         if(currentToken.isNone || currentToken.unwrap().type != TokenType.Brace.RParen) {
                             val token = currentToken.unwrap()
                             err {
@@ -167,7 +167,7 @@ class Parser(private val tokens: List<Token>) {
                             }
                         } else {
                             advance()
-                            ok { groupingExp { it } }
+                            ok { groupingExp { expr } }
                         }
                     }
                 }
@@ -178,7 +178,8 @@ class Parser(private val tokens: List<Token>) {
                         TokenType.Literal.Number,
                         TokenType.Literal.Boolean,
                         TokenType.Literal.Nil,
-                        TokenType.Identifier
+                        TokenType.Identifier,
+                        TokenType.Brace.LParen
                     ).joinToString { tokenType -> tokenType.print() }
                     err {
                         "Line ${token.startPosition.row}, column ${token.startPosition.row}:\n"+
