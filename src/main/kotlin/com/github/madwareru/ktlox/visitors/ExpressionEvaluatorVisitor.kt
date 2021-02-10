@@ -21,7 +21,7 @@ class ExpressionEvaluatorVisitor : (ASTNode) -> Result<LoxValue, String> {
                     when (lhsRes) {
                         !is LoxValue.Boolean -> err {
                             "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                                    "Left operand is not a boolean"
+                            "Left operand is not a boolean"
                         }
                         else -> when {
                             lhsRes.value && binaryExpression.opToken.type == TokenType.BooleanOperator.Or -> ok {
@@ -53,7 +53,7 @@ class ExpressionEvaluatorVisitor : (ASTNode) -> Result<LoxValue, String> {
 
                         else -> err {
                             "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                                    "Unknown binary operator found: ${binaryExpression.opToken.type.print()}"
+                            "Unknown binary operator found: ${binaryExpression.opToken.type.print()}"
                         }
                     }
                 }
@@ -90,21 +90,21 @@ class ExpressionEvaluatorVisitor : (ASTNode) -> Result<LoxValue, String> {
                 val tokenStart = opToken.startPosition
                 err {
                     "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                            "Boolean operands do not support comparisons"
+                    "Boolean operands do not support comparisons"
                 }
             }
             lhs is LoxValue.IdentifierName || rhs is LoxValue.IdentifierName -> {
                 val tokenStart = opToken.startPosition
                 err {
                     "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                            "Identifier evaluation is not implemented yet"
+                    "Identifier evaluation is not implemented yet"
                 }
             }
             else -> {
                 val tokenStart = opToken.startPosition
                 err {
                     "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                            "Operand types are not match"
+                    "Operand types are not match"
                 }
             }
         }
@@ -148,14 +148,14 @@ class ExpressionEvaluatorVisitor : (ASTNode) -> Result<LoxValue, String> {
                 val tokenStart = opToken.startPosition
                 err {
                     "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                            "Identifier evaluation is not implemented yet"
+                    "Identifier evaluation is not implemented yet"
                 }
             }
             else -> {
                 val tokenStart = opToken.startPosition
                 err {
                     "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                            "Operand types are not match"
+                    "Operand types are not match"
                 }
             }
         }
@@ -177,7 +177,7 @@ class ExpressionEvaluatorVisitor : (ASTNode) -> Result<LoxValue, String> {
                 val tokenStart = opToken.startPosition
                 err {
                     "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                            "Right operand is not a boolean"
+                    "Right operand is not a boolean"
                 }
             }
         }
@@ -204,7 +204,7 @@ class ExpressionEvaluatorVisitor : (ASTNode) -> Result<LoxValue, String> {
                     }
                     else -> err {
                         "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                                "String operands do not support arithmetic operators with except to concatenation"
+                        "String operands do not support arithmetic operators with except to concatenation"
                     }
                 }
             }
@@ -212,21 +212,21 @@ class ExpressionEvaluatorVisitor : (ASTNode) -> Result<LoxValue, String> {
                 val tokenStart = opToken.startPosition
                 err {
                     "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                            "Boolean operands do not support arithmetic operators"
+                    "Boolean operands do not support arithmetic operators"
                 }
             }
             lhs is LoxValue.IdentifierName || rhs is LoxValue.IdentifierName -> {
                 val tokenStart = opToken.startPosition
                 err {
                     "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                            "Identifier evaluation is not implemented yet"
+                    "Identifier evaluation is not implemented yet"
                 }
             }
             else -> {
                 val tokenStart = opToken.startPosition
                 err {
                     "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                            "Operand types are not match"
+                    "Operand types are not match"
                 }
             }
         }
@@ -240,11 +240,11 @@ class ExpressionEvaluatorVisitor : (ASTNode) -> Result<LoxValue, String> {
                         is LoxValue.Number -> ok { LoxValue.Number(-rhsRes.value) }
                         is LoxValue.IdentifierName -> err {
                             "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                                    "Identifier evaluation is not implemented yet"
+                            "Identifier evaluation is not implemented yet"
                         }
                         else -> err {
                             "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                                    "Operand is not a number"
+                            "Operand is not a number"
                         }
                     }
                 }
@@ -253,17 +253,17 @@ class ExpressionEvaluatorVisitor : (ASTNode) -> Result<LoxValue, String> {
                         is LoxValue.Boolean -> ok { LoxValue.Boolean(!rhsRes.value) }
                         is LoxValue.IdentifierName -> err {
                             "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                                    "Identifier evaluation is not implemented yet"
+                            "Identifier evaluation is not implemented yet"
                         }
                         else -> err {
                             "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                                    "Operand is not a boolean"
+                            "Operand is not a boolean"
                         }
                     }
                 }
                 else -> err {
                     "[${tokenStart.row},${tokenStart.col}] Parse error:\n" +
-                            "Unknown unary operator found: ${unaryExpression.opToken.type.print()}"
+                    "Unknown unary operator found: ${unaryExpression.opToken.type.print()}"
                 }
             }
         }

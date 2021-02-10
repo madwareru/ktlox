@@ -1,7 +1,7 @@
 package com.github.madwareru.ktlox.tests.parser
 
 import com.github.madwareru.ktlox.*
-import com.github.madwareru.ktlox.visitors.ExpressionCalculatorVisitor
+import com.github.madwareru.ktlox.visitors.ExpressionEvaluatorVisitor
 import com.github.madwareru.ktlox.visitors.SExpressionPrinterVisitor
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -28,7 +28,7 @@ class ParserTests {
             val (source, expectation) = case
             val parsed = parseString(source)
             assert(!parsed.isErr)
-            val sExpr = parsed.unwrap().acceptVisitor(ExpressionCalculatorVisitor())
+            val sExpr = parsed.unwrap().acceptVisitor(ExpressionEvaluatorVisitor())
             assertEquals(expectation, sExpr, "for \"$source\":")
         }
     }
@@ -42,10 +42,12 @@ object TestCases {
     )
 
     val calcDatabase = arrayOf(
-        "2+2" to 4.0,
-        "(2.0 + 2.0) * 2.0" to 8.0,
-        "2.0 + 2.0 * 2.0" to 6.0,
-        "2.0 - 6.0 * 2.0" to -10.0,
-        "2.0 - 2.0 - 2.0 - 2.0" to -4.0,
+        "2+2" to ok<LoxValue, String> { LoxValue.Number(4.0) },
+        "(2.0 + 2.0) * 2.0" to ok { LoxValue.Number(8.0) },
+        "2.0 + 2.0 * 2.0" to ok { LoxValue.Number(6.0) },
+        "2.0 - 6.0 * 2.0" to ok { LoxValue.Number(-10.0) },
+        "2.0 - 2.0 - 2.0 - 2.0" to ok { LoxValue.Number(-4.0) },
+        "2 > 3" to ok { LoxValue.Boolean(false) },
+        "\"Hello \" + \"world\"" to ok { LoxValue.String("Hello world") },
     )
 }
